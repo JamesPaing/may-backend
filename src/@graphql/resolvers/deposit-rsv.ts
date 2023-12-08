@@ -2,11 +2,14 @@ import { Request } from 'express';
 import { GraphQLUpload } from 'graphql-upload';
 import GraphqlDate from '../../utils/scalars/date-scalar';
 import { Deposit } from '../../models/deposit';
+import { User } from '../../models/user';
+import { Wallet } from '../../models/wallet';
 import { TDeposit, TDepositArgs } from '../../@types/deposit-types';
 import AutoIncrement from '../../utils/classes/AutoIncrement';
 import { APIFeatures } from '../../utils/classes/APIFeatures';
-import uploadImage from 'src/utils/uploadImage';
-import deleteImage from 'src/utils/deleteImage';
+import uploadImage from '../../utils/uploadImage';
+import deleteImage from '../../utils/deleteImage';
+import { pubSub } from './../pubsub';
 
 export const depositResolvers = {
     Query: {
@@ -39,6 +42,28 @@ export const depositResolvers = {
 
             return deposit;
         },
+        getDepositHistory: async (
+            _: undefined,
+            { userId, queryString: { limit } }: TDepositArgs,
+            { req }: { req: Request }
+        ) => {
+            // add limit filed to req query object
+            limit && (req.query.limit = limit);
+
+            const withAPIFeatures = new APIFeatures(
+                Deposit.find({ user: userId }),
+                req.query
+            )
+                ._filter()
+                ._fields()
+                ._paginate()
+                ._sort()
+                ._search();
+
+            const deposits = await withAPIFeatures.query;
+
+            return deposits;
+        },
     },
     Mutation: {
         createDeposit: async (
@@ -65,6 +90,65 @@ export const depositResolvers = {
             });
 
             return newDeposit;
+        },
+        approveDeposit: async (_: undefined, _id: TDepositArgs) => {
+            // check if the user is admin
+
+            // change the status of the deposit
+            const updatedDeposit = await Deposit.findByIdAndUpdate(
+                _id,
+                {
+                    status: 'approved',
+                },
+                {
+                    runValidators: true,
+                }
+            );
+
+            // add user point
+            // find if there is already a wallet for user
+            const userWallet = await Wallet.findOne({
+                kind: 'User',
+                owner: updatedDeposit?.user,
+            });
+
+            // if no wallet, create one and add point as well
+            if (!userWallet) {
+                const id = await new AutoIncrement('wallet_id').incSequence();
+
+                const newWallet = await Wallet.create({
+                    id,
+                    owner: updatedDeposit?.user,
+                    kind: 'User',
+                    balance: updatedDeposit?.amount,
+                });
+
+                // update the user
+                await User.findByIdAndUpdate(updatedDeposit?.user, {
+                    $addToSet: { wallet: newWallet._id },
+                });
+            } else {
+                // just update the wallet
+                userWallet.balance =
+                    (userWallet.balance || 0) + (updatedDeposit?.amount || 0);
+
+                await userWallet.save();
+            }
+
+            const rawUser = updatedDeposit!.user as any;
+            const userId = rawUser._id;
+
+            const obj = {
+                message: 'Your deposit has been approved.',
+                deposit: updatedDeposit!._id,
+                user: userId,
+            };
+
+            pubSub.publish('DEPOSIT_APPROVED', {
+                depositApproved: obj,
+            });
+
+            return updatedDeposit;
         },
         updateDeposit: async (
             _: undefined,
@@ -107,6 +191,11 @@ export const depositResolvers = {
             await Deposit.findByIdAndDelete(_id);
 
             return null;
+        },
+    },
+    Subscription: {
+        depositApproved: {
+            subscribe: () => pubSub.asyncIterator(['DEPOSIT_APPROVED']),
         },
     },
     Date: GraphqlDate,

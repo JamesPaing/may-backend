@@ -4,7 +4,7 @@ export const paymentTypeDefs = gql`
     scalar Date
 
     type PaymentMethod {
-        _id: String
+        _id: ID
     }
 
     type Payment {
@@ -38,8 +38,8 @@ export const paymentTypeDefs = gql`
     }
 
     type Mutation {
-        createPayment(payment: PyamentInput): Payment
-        updatePayment(_id: ID, payment: PyamentInput): Payment
+        createPayment(payment: PaymentInput): Payment
+        updatePayment(_id: ID, payment: PaymentInput): Payment
         deletePayment(_id: ID): String
     }
 `;

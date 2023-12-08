@@ -26,6 +26,7 @@ export interface TWithdrawalInput extends Omit<TMain, 'user' | 'approvedBy'> {
 
 export interface TWithdrawalArgs {
     _id: string;
+    userId: string;
     withdrawal: TWithdrawalInput;
     queryString: {
         limit: string;

@@ -1,6 +1,6 @@
 import { gql } from 'graphql-tag';
 
-export const depositTypeDefs = gql`
+export const withdrawalTypeDefs = gql`
     scalar Date
 
     type User {
@@ -8,7 +8,13 @@ export const depositTypeDefs = gql`
         name: String
     }
 
-    type Deposit {
+    type WithdrawalApprovedResponse {
+        message: String
+        withdrawal: ID
+        user: ID
+    }
+
+    type Withdrawal {
         id: Int
         _id: ID
         user: User
@@ -20,12 +26,12 @@ export const depositTypeDefs = gql`
         updatedAt: Date
     }
 
-    type AllDepositsResponse {
+    type AllWithdrawalsResponse {
         results: Int
-        deposits: [Deposit]
+        withdrawals: [Withdrawal]
     }
 
-    input DepositInput {
+    input WithdrawalInput {
         user: ID
         status: String
         approvedBy: ID
@@ -40,13 +46,19 @@ export const depositTypeDefs = gql`
     }
 
     type Query {
-        getAllDeposits(queryString: QueryString): AllDepositsResponse
-        getDeposit(_id: ID): Deposit
+        getAllWithdrawals(queryString: QueryString): AllWithdrawalsResponse
+        getWithdrawal(_id: ID): Withdrawal
+        getWithdrawalHistory(userId: ID, queryString: QueryString): [Withdrawal]
     }
 
     type Mutation {
-        createDeposit(deposit: DepositInput): Deposit
-        updateDeposit(_id: ID, deposit: DepositInput): Deposit
-        deleteDeposit(_id: ID): String
+        createWithdrawal(withdrawal: WithdrawalInput): Withdrawal
+        updateWithdrawal(_id: ID, withdrawal: WithdrawalInput): Withdrawal
+        deleteWithdrawal(_id: ID): String
+        approveWithdrawal(_id: ID): Withdrawal
+    }
+
+    type Subscription {
+        withdrawalApproved: WithdrawalApprovedResponse
     }
 `;

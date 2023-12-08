@@ -14,4 +14,13 @@ const orderItemSchema = new mongoose.Schema(
     }
 );
 
+orderItemSchema.pre(/^find/, function (next) {
+    this.populate({
+        path: 'item',
+        select: '_id name vendor',
+    });
+
+    next();
+});
+
 export const OrderItem = mongoose.model('OrderItem', orderItemSchema);

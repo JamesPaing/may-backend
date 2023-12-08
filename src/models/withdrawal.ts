@@ -12,6 +12,7 @@ const withdrawalSchema = new mongoose.Schema(
         status: {
             type: String,
             enum: ['pending', 'approved'],
+            default: 'pending',
         },
         approvedBy: {
             type: mongoose.Types.ObjectId,
@@ -22,5 +23,14 @@ const withdrawalSchema = new mongoose.Schema(
         timestamps: true,
     }
 );
+
+withdrawalSchema.pre(/^find/, function (next) {
+    this.populate({
+        path: 'user',
+        select: '_id name',
+    });
+
+    next();
+});
 
 export const Withdrawal = mongoose.model('Withdrawal', withdrawalSchema);

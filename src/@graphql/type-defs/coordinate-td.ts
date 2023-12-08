@@ -34,8 +34,8 @@ export const coordinateTypeDefs = gql`
     }
 
     type Mutation {
-        createCoordinate(coordinate: CoordinateInput): Coordiante
-        updateCoordinate(_id: ID, coordinate: CoordinateInput): Coordiante
+        createCoordinate(coordinate: CoordinateInput): Coordinate
+        updateCoordinate(_id: ID, coordinate: CoordinateInput): Coordinate
         deleteCoordinate(_id: ID): String
     }
 `;

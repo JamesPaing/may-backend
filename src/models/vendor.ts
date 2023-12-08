@@ -18,6 +18,10 @@ const vendorSchema = new mongoose.Schema(
             type: mongoose.Types.ObjectId,
             ref: 'Wallet',
         },
+        user: {
+            type: mongoose.Types.ObjectId,
+            ref: 'User',
+        },
         items: {
             type: [mongoose.Types.ObjectId],
             ref: 'Item',
@@ -30,7 +34,20 @@ const vendorSchema = new mongoose.Schema(
         },
         type: {
             type: String,
-            enum: ['shop', 'restaurant'],
+            enum: ['shop', 'market'],
+        },
+        location: {
+            type: {
+                type: String,
+                default: 'Point',
+                enum: ['Point'],
+            },
+            coordinates: [
+                {
+                    type: Number,
+                    default: undefined,
+                },
+            ],
         },
         coordinate: {
             type: mongoose.Types.ObjectId,
@@ -39,7 +56,19 @@ const vendorSchema = new mongoose.Schema(
     },
     {
         timestamps: true,
+        autoIndex: true,
     }
 );
+
+vendorSchema.index({ location: '2dsphere' });
+
+vendorSchema.pre(/^find/, function (next) {
+    this.populate({
+        path: 'user',
+        select: '_id name -vendors',
+    });
+
+    next();
+});
 
 export const Vendor = mongoose.model('Vendor', vendorSchema);

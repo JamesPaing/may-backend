@@ -20,18 +20,67 @@ const userSchema = new mongoose_1.Schema({
     name: String,
     contact: String,
     email: String,
+    address: String,
     role: {
         type: String,
-        enum: ['user', 'admin', 'super_admin'],
+        enum: ['user', 'admin', 'super_admin', 'vendor', 'biker'],
         default: 'user',
     },
     password: String,
     passwordConfirmation: String,
     passwordResetToken: String,
     passwordChangedAt: Date,
+    wallet: {
+        type: mongoose_1.Types.ObjectId,
+        ref: 'Wallet',
+    },
+    vendors: {
+        type: [mongoose_1.Types.ObjectId],
+        ref: 'Vendor',
+    },
+    location: {
+        type: {
+            type: String,
+            default: 'Point',
+            enum: ['Point'],
+        },
+        coordinates: {
+            type: [Number],
+            default: [0, 0],
+        },
+    },
+    currentCoordinate: {
+        type: mongoose_1.Types.ObjectId,
+        ref: 'Coordinate',
+    },
+    coordinates: {
+        type: [mongoose_1.Types.ObjectId],
+        ref: 'Coordinate',
+    },
+    favourites: {
+        type: [mongoose_1.Types.ObjectId],
+        ref: 'Item',
+    },
     isActive: { type: Boolean, default: true },
 }, {
     timestamps: true,
+    autoIndex: true,
+});
+userSchema.index({ location: '2dsphere' });
+userSchema.pre(/^find/, function (next) {
+    this.populate({
+        path: 'favourites',
+        select: '_id name mainImage price vendor',
+    })
+        .populate({
+        path: 'vendors',
+        select: '_id name -user',
+    })
+        .populate({
+        path: 'wallet',
+        select: '_id balance -owner',
+    });
+    next();
 });
 userSchema.pre('save', function (next) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -52,6 +101,9 @@ userSchema.methods.correctPassword = function (candidatePassword, userPassword) 
     return __awaiter(this, void 0, void 0, function* () {
         return yield bcryptjs_1.default.compare(candidatePassword, userPassword);
     });
+};
+userSchema.methods.verifyRole = function (user, role) {
+    return user.role === role;
 };
 exports.User = (0, mongoose_1.model)('User', userSchema);
 //# sourceMappingURL=user.js.map

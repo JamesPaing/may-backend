@@ -5,20 +5,21 @@ import { Category } from '../../models/category';
 import { TCategory, TCategoryArgs } from '../../@types/category-types';
 import AutoIncrement from '../../utils/classes/AutoIncrement';
 import { APIFeatures } from '../../utils/classes/APIFeatures';
-import uploadImage from 'src/utils/uploadImage';
-import deleteImage from 'src/utils/deleteImage';
+import uploadImage from '../../utils/uploadImage';
+import deleteImage from '../../utils/deleteImage';
 
 export const categoryResolvers = {
     Query: {
         getAllCategories: async (
             _: undefined,
-            { queryString: { limit, search, page } }: TCategoryArgs,
+            { queryString: { limit, search, page, forMarket } }: TCategoryArgs,
             { req }: { req: Request }
         ) => {
             // add limit filed to req query object
             limit && (req.query.limit = limit);
             search && (req.query.search = search);
             page && (req.query.page = page);
+            req.query.forMarket = forMarket;
 
             const withAPIFeatures = new APIFeatures(Category.find(), req.query)
                 ._filter()

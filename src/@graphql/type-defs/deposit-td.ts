@@ -9,6 +9,12 @@ export const depositTypeDefs = gql`
         name: String
     }
 
+    type DepositApprovedResponse {
+        message: String
+        deposit: ID
+        user: ID
+    }
+
     type Deposit {
         id: Int
         _id: ID
@@ -43,11 +49,17 @@ export const depositTypeDefs = gql`
     type Query {
         getAllDeposits(queryString: QueryString): AllDepositsResponse
         getDeposit(_id: ID): Deposit
+        getDepositHistory(userId: ID, queryString: QueryString): [Deposit]
     }
 
     type Mutation {
         createDeposit(deposit: DepositInput): Deposit
         updateDeposit(_id: ID, deposit: DepositInput): Deposit
         deleteDeposit(_id: ID): String
+        approveDeposit(_id: ID): Deposit
+    }
+
+    type Subscription {
+        depositApproved: DepositApprovedResponse
     }
 `;

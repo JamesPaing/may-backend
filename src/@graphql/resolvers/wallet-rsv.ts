@@ -27,9 +27,25 @@ export const walletResolvers = {
 
             const wallets = await withAPIFeatures.query;
 
+            // this is temporarily fix
+            const formattedWallets = wallets.map((w: any) => ({
+                id: w.id,
+                _id: w._id,
+                kind: w.kind,
+                balance: w.balance,
+                createdAt: w.createdAt,
+                updatedAt: w.updatedAt,
+                __v: w.__v,
+                owner: {
+                    _id: w.owner._id,
+                    name: w.owner.name,
+                    __typename: 'User',
+                },
+            }));
+
             return {
-                results: wallets.length,
-                wallets,
+                results: formattedWallets.length,
+                wallets: formattedWallets,
             };
         },
         getWallet: async (_: undefined, { _id }: TwalletArgs) => {

@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.userResolvers = void 0;
 const date_scalar_1 = __importDefault(require("../../utils/scalars/date-scalar"));
 const user_1 = require("../../models/user");
+const item_1 = require("../../models/item");
 const AutoIncrement_1 = __importDefault(require("../../utils/classes/AutoIncrement"));
 const APIFeatures_1 = require("../../utils/classes/APIFeatures");
 exports.userResolvers = {
@@ -39,6 +40,17 @@ exports.userResolvers = {
             const user = yield user_1.User.findById(_id);
             return user;
         }),
+        getAllFavouriteItems: (_, { _id }) => __awaiter(void 0, void 0, void 0, function* () {
+            const user = yield user_1.User.findById(_id);
+            const formattedItems = user === null || user === void 0 ? void 0 : user.favourites.map((favourite) => ({
+                _id: favourite._id,
+                name: favourite.name,
+                vendor: favourite.vendor,
+                price: favourite.price,
+                mainImage: favourite.mainImage,
+            }));
+            return formattedItems;
+        }),
     },
     Mutation: {
         createUser: (_, { user }) => __awaiter(void 0, void 0, void 0, function* () {
@@ -52,6 +64,34 @@ exports.userResolvers = {
                 runValidators: true,
             });
             return updatedUser;
+        }),
+        addFavouriteItem: (_, { _id, itemId }) => __awaiter(void 0, void 0, void 0, function* () {
+            yield user_1.User.findByIdAndUpdate(_id, {
+                $addToSet: { favourites: itemId },
+            }, {
+                runValidators: true,
+            });
+            const updatedItem = yield item_1.Item.findByIdAndUpdate(itemId, {
+                $addToSet: { favouritedBy: _id },
+            }, {
+                runValidators: true,
+                new: true,
+            });
+            return updatedItem;
+        }),
+        removeFavouriteItem: (_, { _id, itemId }) => __awaiter(void 0, void 0, void 0, function* () {
+            yield user_1.User.findByIdAndUpdate(_id, {
+                $pull: { favourites: itemId },
+            }, {
+                runValidators: true,
+            });
+            const updatedItem = yield item_1.Item.findByIdAndUpdate(itemId, {
+                $pull: { favouritedBy: _id },
+            }, {
+                runValidators: true,
+                new: true,
+            });
+            return updatedItem;
         }),
         deleteUser: (_, { _id }) => __awaiter(void 0, void 0, void 0, function* () {
             yield user_1.User.findByIdAndDelete(_id);

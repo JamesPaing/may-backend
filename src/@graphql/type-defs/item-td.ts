@@ -19,8 +19,11 @@ export const itemTypeDefs = gql`
         _id: ID
         name: String
         price: Int
+        quantity: Int
+        description: String
         mainImage: String
         images: [String]
+        favouritedBy: [ID]
         vendor: Vendor
         categories: [Category]
         isActive: Boolean
@@ -36,8 +39,10 @@ export const itemTypeDefs = gql`
     input ItemInput {
         name: String
         price: Int
-        mainImage: String
-        images: [String]
+        quantity: Int
+        description: String
+        mainImage: FileUpload
+        images: [FileUpload]
         vendor: ID
         categories: [ID]
         isActive: Boolean
@@ -52,6 +57,11 @@ export const itemTypeDefs = gql`
     type Query {
         getAllItems(queryString: QueryString): AllItemsResponse
         getItem(_id: ID): Item
+        getItemByCategory(catId: ID, queryString: QueryString): AllItemsResponse
+        getItemByVendor(
+            vendorId: ID
+            queryString: QueryString
+        ): AllItemsResponse
     }
 
     type Mutation {

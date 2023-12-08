@@ -20,7 +20,7 @@ export const walletTypeDefs = gql`
         _id: ID
         owner: Owner
         kind: String
-        balance: Number
+        balance: Int
         createdAt: Date
         updatedAt: Date
     }
@@ -33,7 +33,7 @@ export const walletTypeDefs = gql`
     input WalletInput {
         owner: ID
         kind: String
-        balance: Number
+        balance: Int
     }
 
     input QueryString {
@@ -43,7 +43,7 @@ export const walletTypeDefs = gql`
     }
 
     type Query {
-        getAllWallets(queryString: QueryString): AllWalletsRespnse
+        getAllWallets(queryString: QueryString): AllWalletsResponse
         getWallet(_id: ID): Wallet
     }
 

@@ -2,13 +2,24 @@ import { gql } from 'graphql-tag';
 
 export const vendorTypeDefs = gql`
     scalar Date
+    scalar FileUpload
 
     type Wallet {
-        _id: String
+        _id: ID
     }
 
     type Coordinate {
-        _id: String
+        _id: ID
+    }
+
+    type User {
+        _id: ID
+        name: String
+    }
+
+    type Location {
+        type: String
+        coordinates: [Float]
     }
 
     type Vendor {
@@ -22,7 +33,9 @@ export const vendorTypeDefs = gql`
         passwordConfirmation: String
         wallet: Wallet
         items: [Item]
+        user: User
         logo: String
+        location: Location
         images: [String]
         isActive: Boolean
         type: String
@@ -36,6 +49,17 @@ export const vendorTypeDefs = gql`
         vendors: [Vendor]
     }
 
+    type Distance {
+        _id: ID
+        name: String
+        distance: Float
+    }
+
+    input LocationInput {
+        type: String
+        coordinates: [Float]
+    }
+
     input VendorInput {
         name: String
         address: String
@@ -43,24 +67,34 @@ export const vendorTypeDefs = gql`
         township: String
         password: String
         passwordConfirmation: String
+        location: LocationInput
         wallet: ID
         items: [ID]
-        logo: String
+        user: ID
+        logo: FileUpload
         images: [String]
         isActive: Boolean
         type: String
-        coordinate: Coordinate
+        coordinate: ID
     }
 
     input QueryString {
         limit: String
         search: String
         page: String
+        type: String
     }
 
     type Query {
         getAllVendors(queryString: QueryString): AllVendorsResponse
         getVendor(_id: ID): Vendor
+        getMyVendors(userId: ID): AllVendorsResponse
+        getVendorsWithin(
+            distance: Float
+            latlng: String
+            unit: String
+        ): AllVendorsResponse
+        getDistances(latlng: String, unit: String, vendorIds: [ID]): [Distance]
     }
 
     type Mutation {

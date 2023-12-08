@@ -5,17 +5,37 @@ export const orderTypeDefs = gql`
     scalar FileUpload
 
     type User {
-        _id: String
+        _id: ID
         name: String
     }
 
     type OrderItem {
-        _id: String
+        _id: ID
         quantity: Int
     }
 
     type Payment {
-        _id: String
+        _id: ID
+        amount: Int
+    }
+
+    type Location {
+        type: String
+        coordinates: [Float]
+    }
+
+    type NewOrderApproveResponse {
+        order: Order
+        bikers: [ID]
+    }
+
+    type OrderHistory {
+        ref: String
+        _id: ID
+        itemCount: Int
+        grandTotal: Int
+        status: String
+        date: Date
     }
 
     type Order {
@@ -24,9 +44,11 @@ export const orderTypeDefs = gql`
         ref: String
         user: User
         orderItems: [OrderItem]
+        address: String
+        location: Location
         payments: [Payment]
         total: Int
-        subTotoal: Int
+        subTotal: Int
         screenShot: String
         note: String
         status: String
@@ -39,32 +61,59 @@ export const orderTypeDefs = gql`
         orders: [Order]
     }
 
+    input OrderItemInput {
+        item: ID
+        quantity: Int
+    }
+
+    input PaymentInput {
+        paymentMethod: ID
+        amount: Int
+    }
+
+    input LocationInput {
+        type: String
+        coordinates: [Float]
+    }
+
     input OrderInput {
-        ref: String
         user: ID
-        orderItems: [ID]
-        payments: [ID]
+        orderItems: [OrderItemInput]
+        payments: [PaymentInput]
+        location: LocationInput
+        address: String
         total: Int
-        subTotoal: Int
+        subTotal: Int
         screenShot: FileUpload
         note: String
-        status: String
     }
 
     input QueryString {
         limit: String
         search: String
+        searchField: String
         page: String
     }
 
     type Query {
         getAllOrders(queryString: QueryString): AllOrdersResponse
         getOrder(_id: ID): Order
+        getOrderHistory(userId: ID, queryString: QueryString): [OrderHistory]
+        getVendorOrderHistory(
+            vendorId: ID
+            queryString: QueryString
+        ): [OrderHistory]
     }
 
     type Mutation {
         createOrder(order: OrderInput): Order
         updateOrder(_id: ID, order: OrderInput): Order
         deleteOrder(_id: ID): String
+        approveOrder(_id: ID): Order
+        getApprovedOrder(vendorId: ID): Order
+    }
+
+    type Subscription {
+        newOrderApproved: NewOrderApproveResponse
     }
 `;

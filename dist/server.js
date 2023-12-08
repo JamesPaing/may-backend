@@ -26,7 +26,35 @@ const cors_1 = __importDefault(require("cors"));
 const body_parser_1 = require("body-parser");
 const scheduled_tasks_1 = require("./scheduled/scheduled-tasks");
 const user_rsv_1 = require("./@graphql/resolvers/user-rsv");
+const category_rsv_1 = require("./@graphql/resolvers/category-rsv");
+const coordinate_rsv_1 = require("./@graphql/resolvers/coordinate-rsv");
+const deposit_rsv_1 = require("./@graphql/resolvers/deposit-rsv");
+const item_rsv_1 = require("./@graphql/resolvers/item-rsv");
+const order_rsv_1 = require("./@graphql/resolvers/order-rsv");
+const order_item_rsv_1 = require("./@graphql/resolvers/order-item-rsv");
+const payment_method_rsv_1 = require("./@graphql/resolvers/payment-method-rsv");
+const payment_rsv_1 = require("./@graphql/resolvers/payment-rsv");
+const rating_review_rsv_1 = require("./@graphql/resolvers/rating-review-rsv");
+const vendor_rsv_1 = require("./@graphql/resolvers/vendor-rsv");
+const wallet_rsv_1 = require("./@graphql/resolvers/wallet-rsv");
+const withdrawal_rsv_1 = require("./@graphql/resolvers/withdrawal-rsv");
+const auth_rsv_1 = require("./@graphql/resolvers/auth-rsv");
+const transfer_rsv_1 = require("./@graphql/resolvers/transfer-rsv");
+const category_td_1 = require("./@graphql/type-defs/category-td");
+const coordinate_td_1 = require("./@graphql/type-defs/coordinate-td");
+const deposit_td_1 = require("./@graphql/type-defs/deposit-td");
+const item_td_1 = require("./@graphql/type-defs/item-td");
+const order_item_td_1 = require("./@graphql/type-defs/order-item-td");
+const order_td_1 = require("./@graphql/type-defs/order-td");
+const payment_method_td_1 = require("./@graphql/type-defs/payment-method-td");
+const payment_td_1 = require("./@graphql/type-defs/payment-td");
+const rating_review_td_1 = require("./@graphql/type-defs/rating-review-td");
 const user_td_1 = require("./@graphql/type-defs/user-td");
+const vendor_td_1 = require("./@graphql/type-defs/vendor-td");
+const wallet_td_1 = require("./@graphql/type-defs/wallet-td");
+const withdrawal_td_1 = require("./@graphql/type-defs/withdrawal-td");
+const auth_td_1 = require("./@graphql/type-defs/auth-td");
+const transfer_td_1 = require("./@graphql/type-defs/transfer-td");
 (0, dotenv_1.config)({
     path: '.env',
 });
@@ -55,13 +83,46 @@ const dbString = process.env.DB_STRING;
         path: '/graphql',
     });
     const schema = (0, schema_1.makeExecutableSchema)({
-        typeDefs: [user_td_1.userTypeDefs],
-        resolvers: [user_rsv_1.userResolvers],
+        typeDefs: [
+            user_td_1.userTypeDefs,
+            category_td_1.categoryTypeDefs,
+            coordinate_td_1.coordinateTypeDefs,
+            deposit_td_1.depositTypeDefs,
+            item_td_1.itemTypeDefs,
+            order_item_td_1.orderItemTypeDefs,
+            order_td_1.orderTypeDefs,
+            payment_method_td_1.paymentMethodTypeDefs,
+            payment_td_1.paymentTypeDefs,
+            rating_review_td_1.ratingReviewTypeDefs,
+            vendor_td_1.vendorTypeDefs,
+            wallet_td_1.walletTypeDefs,
+            withdrawal_td_1.withdrawalTypeDefs,
+            auth_td_1.authTypeDefs,
+            transfer_td_1.transferTypeDefs,
+        ],
+        resolvers: [
+            user_rsv_1.userResolvers,
+            category_rsv_1.categoryResolvers,
+            coordinate_rsv_1.coordinateResolvers,
+            deposit_rsv_1.depositResolvers,
+            item_rsv_1.itemResolvers,
+            order_item_rsv_1.orderItemResolvers,
+            order_rsv_1.orderResolvers,
+            payment_method_rsv_1.paymentMethodResolvers,
+            payment_rsv_1.paymentResolvers,
+            rating_review_rsv_1.ratingReviewResolvers,
+            vendor_rsv_1.vendorResolvers,
+            wallet_rsv_1.walletResolvers,
+            withdrawal_rsv_1.withdrawalResolvers,
+            auth_rsv_1.authResolvers,
+            transfer_rsv_1.transferResolvers,
+        ],
     });
     const serverCleanup = (0, ws_2.useServer)({ schema }, wsServer);
     const startApolloServer = () => __awaiter(void 0, void 0, void 0, function* () {
         const server = new server_1.ApolloServer({
             schema,
+            csrfPrevention: false,
             plugins: [
                 (0, drainHttpServer_1.ApolloServerPluginDrainHttpServer)({ httpServer }),
                 {

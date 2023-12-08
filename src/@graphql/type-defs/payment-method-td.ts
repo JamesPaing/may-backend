@@ -13,7 +13,7 @@ export const paymentMethodTypeDefs = gql`
         updatedAt: Date
     }
 
-    type AllPaymentMethods {
+    type AllPaymentMethodsResponse {
         results: Int
         paymentMethods: [PaymentMethod]
     }
@@ -31,7 +31,9 @@ export const paymentMethodTypeDefs = gql`
     }
 
     type Query {
-        getAllPaymentMethods(queryString: QueryString): AllPaymentMethodResponse
+        getAllPaymentMethods(
+            queryString: QueryString
+        ): AllPaymentMethodsResponse
         getPaymentMethod(_id: ID): PaymentMethod
     }
 

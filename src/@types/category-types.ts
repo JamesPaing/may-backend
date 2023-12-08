@@ -1,5 +1,6 @@
 interface TMain {
     name: string;
+    forMarket: boolean;
     count: number;
     image: string;
     isActive: boolean;
@@ -23,5 +24,6 @@ export interface TCategoryArgs {
         limit: string;
         search: string;
         page: string;
+        forMarket: string;
     };
 }

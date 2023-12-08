@@ -9,6 +9,7 @@ export const categoryTypeDefs = gql`
         _id: ID
         name: String
         count: Int
+        forMarket: Boolean
         image: String
         isActive: Boolean
         createdAt: Date
@@ -31,6 +32,7 @@ export const categoryTypeDefs = gql`
         limit: String
         search: String
         page: String
+        forMarket: Boolean
     }
 
     type Query {

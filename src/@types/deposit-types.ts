@@ -28,6 +28,7 @@ export interface TDepositInput
 
 export interface TDepositArgs {
     _id: string;
+    userId: string;
     deposit: TDepositInput;
     queryString: {
         limit: string;

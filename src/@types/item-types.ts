@@ -2,7 +2,10 @@ interface TMain {
     name: string;
     price: number;
     mainImage: string;
+    quantity: number;
     images: string[];
+    description: string;
+    favouritedBy: string[];
     vendor: {
         _id: string;
         name: string;
@@ -31,6 +34,8 @@ export interface TItemInput
 export interface TItemArgs {
     _id: string;
     item: TItemInput;
+    vendorId: string;
+    catId: string;
     queryString: {
         limit: string;
         search: string;

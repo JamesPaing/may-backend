@@ -4,19 +4,19 @@ export const ratingReviewTypeDefs = gql`
     scalar Date
 
     type Order {
-        _id: String
+        _id: ID
     }
 
     type Vendor {
-        _id: String
+        _id: ID
     }
 
     type Item {
-        _id: String
+        _id: ID
     }
 
     type User {
-        _id: String
+        _id: ID
         name: String
     }
 

@@ -35,7 +35,7 @@ export const ratingReviewResolvers = {
                 ratingReviews,
             };
         },
-        getRatingReviews: async (_: undefined, { _id }: TRatingReviewArgs) => {
+        getRatingReview: async (_: undefined, { _id }: TRatingReviewArgs) => {
             const ratingReviews = await RatingReview.findById(_id);
 
             return ratingReviews;

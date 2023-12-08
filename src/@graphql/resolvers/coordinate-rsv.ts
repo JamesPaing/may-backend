@@ -71,7 +71,7 @@ export const coordinateResolvers = {
 
             return updatedCoordiante;
         },
-        deleteCoordiante: async (_: undefined, { _id }: TCoordinateArgs) => {
+        deleteCoordinate: async (_: undefined, { _id }: TCoordinateArgs) => {
             await Coordinate.findByIdAndDelete(_id);
 
             return null;

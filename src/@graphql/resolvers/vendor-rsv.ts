@@ -5,20 +5,25 @@ import { Vendor } from '../../models/vendor';
 import { TVendor, TVendorArgs } from '../../@types/vendor-types';
 import AutoIncrement from '../../utils/classes/AutoIncrement';
 import { APIFeatures } from '../../utils/classes/APIFeatures';
-import uploadImage from 'src/utils/uploadImage';
-import deleteImage from 'src/utils/deleteImage';
+import uploadImage from '../../utils/uploadImage';
+import deleteImage from '../../utils/deleteImage';
+import { User } from '../../models/user';
+import mongoose from 'mongoose';
+
+const ObjectId = mongoose.Types.ObjectId;
 
 export const vendorResolvers = {
     Query: {
         getAllVendors: async (
             _: undefined,
-            { queryString: { limit, search, page } }: TVendorArgs,
+            { queryString: { limit, search, page, type } }: TVendorArgs,
             { req }: { req: Request }
         ) => {
             // add limit filed to req query object
             limit && (req.query.limit = limit);
             search && (req.query.search = search);
             page && (req.query.page = page);
+            req.query.type = type;
 
             const withAPIFeatures = new APIFeatures(Vendor.find(), req.query)
                 ._filter()
@@ -38,6 +43,92 @@ export const vendorResolvers = {
             const vendor = await Vendor.findById(_id);
 
             return vendor;
+        },
+        getMyVendors: async (_: undefined, { userId }: TVendorArgs) => {
+            const vendors = await Vendor.find({
+                user: userId,
+            });
+
+            return {
+                results: vendors.length,
+                vendors,
+            };
+        },
+        getVendorsWithin: async (
+            _: undefined,
+            { distance, latlng, unit }: TVendorArgs
+        ) => {
+            const [lat, lng] = latlng.split(',');
+
+            const radius =
+                unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+
+            if (!lat || !lng) {
+                throw new Error(
+                    'Please provide lat and lng in this format lat,lng.'
+                );
+            }
+
+            const vendors = await Vendor.find({
+                location: {
+                    $geoWithin: {
+                        $centerSphere: [[lng, lat], radius],
+                    },
+                },
+            });
+
+            return {
+                results: vendors.length,
+                vendors,
+            };
+        },
+        getDistances: async (
+            _: undefined,
+            { latlng, unit, vendorIds }: TVendorArgs
+        ) => {
+            const [lat, lng] = latlng.split(',');
+
+            const multiplier = unit === 'mi' ? 0.000621371 : 0.001;
+
+            if (!lat || !lng) {
+                throw new Error(
+                    'Please provide lat and lng in this format lat,lng.'
+                );
+            }
+
+            // const shopArray = shops.split(',');
+
+            const ids = vendorIds.map(function (id) {
+                return new ObjectId(id);
+            });
+
+            const distances = await Vendor.aggregate([
+                {
+                    $geoNear: {
+                        near: {
+                            type: 'Point',
+                            coordinates: [Number(lng), Number(lat)],
+                        },
+                        distanceField: 'distance',
+                        distanceMultiplier: multiplier,
+                    },
+                },
+                {
+                    $match: {
+                        _id: {
+                            $in: ids,
+                        },
+                    },
+                },
+                {
+                    $project: {
+                        distance: 1,
+                        name: 1,
+                    },
+                },
+            ]);
+
+            return distances;
         },
     },
     Mutation: {
@@ -63,6 +154,11 @@ export const vendorResolvers = {
             const newVendor = await Vendor.create({
                 id,
                 ...vendor,
+            });
+
+            // update user
+            await User.findByIdAndUpdate(vendor.user, {
+                $addToSet: { vendors: newVendor._id },
             });
 
             return newVendor;

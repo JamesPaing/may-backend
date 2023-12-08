@@ -4,6 +4,11 @@ interface TMain {
         _id: string;
         name: string;
     };
+    address: string;
+    location: {
+        type: string;
+        coordinates: number[];
+    };
     orderItems: {
         _id: string;
         item: {
@@ -40,10 +45,13 @@ export interface TOrderInput
 
 export interface TOrderArgs {
     _id: string;
+    userId: string;
+    vendorId: string;
     order: TOrderInput;
     queryString: {
         limit: string;
         search: string;
+        searchField: string;
         page: string;
     };
 }

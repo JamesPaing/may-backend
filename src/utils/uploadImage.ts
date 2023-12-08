@@ -18,5 +18,7 @@ export default async (
 
     await stream.pipe(fs.createWriteStream(pathName));
 
-    return `${req.protocol}://${req.get('host')}/uploads/${newFileName}`;
+    return `${req.protocol}://${req.get('host')}/uploads/${
+        filePath.split('/')[4]
+    }/${newFileName}`;
 };

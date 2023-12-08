@@ -12,6 +12,7 @@ const depositSchema = new mongoose.Schema(
         status: {
             type: String,
             enum: ['pending', 'approved'],
+            default: 'pending',
         },
         approvedBy: {
             type: mongoose.Types.ObjectId,
@@ -22,5 +23,14 @@ const depositSchema = new mongoose.Schema(
         timestamps: true,
     }
 );
+
+depositSchema.pre(/^find/, function (next) {
+    this.populate({
+        path: 'user',
+        select: '_id name',
+    });
+
+    next();
+});
 
 export const Deposit = mongoose.model('Deposit', depositSchema);

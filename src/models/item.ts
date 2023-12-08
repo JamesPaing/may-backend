@@ -9,6 +9,15 @@ const itemSchema = new mongoose.Schema(
         price: Number,
         mainImage: String,
         images: [String],
+        favouritedBy: {
+            type: [ObjectId],
+            ref: 'User',
+        },
+        description: String,
+        quantity: {
+            type: Number,
+            default: 5,
+        },
         vendor: {
             type: ObjectId,
             ref: 'Vendor',
@@ -26,5 +35,17 @@ const itemSchema = new mongoose.Schema(
         timestamps: true,
     }
 );
+
+itemSchema.pre(/^find/, function (next) {
+    this.populate({
+        path: 'vendor',
+        select: '_id name',
+    }).populate({
+        path: 'categories',
+        select: '_id name',
+    });
+
+    next();
+});
 
 export const Item = mongoose.model('Item', itemSchema);
